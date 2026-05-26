@@ -67,7 +67,7 @@ function MessagePart({
 }
 
 export function ChatApp() {
-  const [mode, setMode] = useState<Mode>("chat");
+  const [mode, setMode] = useState<Mode>("agent");
   const [input, setInput] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
