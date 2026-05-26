@@ -13,9 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hackathon Starter — Subconscious Agents",
-  description:
-    "Chat and long-running agents powered by Subconscious, Vercel AI SDK, Baseten, and Cloudflare.",
+  title: "On-Call Agent",
+  description: "Autonomous incident response agent — triage, remediate, and notify.",
 };
 
 export default function RootLayout({

@@ -1,0 +1,70 @@
+[
+  {
+    "id": "checkout-500",
+    "service": "checkout-service",
+    "title": "Checkout Service 5xx Errors",
+    "keywords": ["checkout", "500", "5xx", "payment", "order", "purchase"],
+    "severity": "P1",
+    "steps": [
+      "Check DB connection pool — common cause is exhausted connections under load",
+      "Query logs for 'ECONNREFUSED' or 'connection timeout' to confirm DB issue",
+      "If DB timeouts: restart checkout-service pods to clear stale connections",
+      "If error rate persists: scale checkout-service to 6 replicas",
+      "If still degraded: roll back to last stable deploy (checkout-service v2.3.1)",
+      "Post update to #incidents every 10 minutes until resolved"
+    ],
+    "contacts": ["#eng-alerts", "@oncall-backend"],
+    "escalation": "Page checkout team lead if not resolved within 15 minutes"
+  },
+  {
+    "id": "auth-latency",
+    "service": "auth-service",
+    "title": "Auth Service High Latency / Login Failures",
+    "keywords": ["auth", "login", "latency", "token", "jwt", "session", "401", "403"],
+    "severity": "P1",
+    "steps": [
+      "Check Redis cache hit rate — auth tokens are cached; low hit rate = cold cache",
+      "Verify identity provider (IdP) status — external dependency",
+      "If Redis issue: flush auth cache and allow warm-up (expect 2-3 min degradation)",
+      "If IdP degraded: enable fallback auth mode via feature flag AUTH_FALLBACK=true",
+      "Restart auth-service if memory usage exceeds 85%",
+      "Monitor login success rate in Grafana dashboard auth-overview"
+    ],
+    "contacts": ["#eng-alerts", "@oncall-security"],
+    "escalation": "Page security team if token forgery or breach suspected"
+  },
+  {
+    "id": "db-replication-lag",
+    "service": "postgres-primary",
+    "title": "Database Replication Lag",
+    "keywords": ["database", "db", "postgres", "replication", "lag", "replica", "read replica", "slow query"],
+    "severity": "P2",
+    "steps": [
+      "Check replication lag with: SELECT * FROM pg_stat_replication",
+      "Identify long-running queries blocking replication: SELECT pid, query, state FROM pg_stat_activity WHERE state != 'idle' ORDER BY duration DESC",
+      "Kill blocking queries if duration > 5 minutes",
+      "If lag > 60s: redirect read traffic to primary temporarily",
+      "Check disk I/O — high write load can cause lag spikes",
+      "Alert #db-eng if lag exceeds 5 minutes"
+    ],
+    "contacts": ["#eng-alerts", "@oncall-dba"],
+    "escalation": "Escalate to DBA if primary shows signs of failure"
+  },
+  {
+    "id": "api-gateway-timeout",
+    "service": "api-gateway",
+    "title": "API Gateway Timeouts / High Error Rate",
+    "keywords": ["api", "gateway", "timeout", "503", "downstream", "upstream", "circuit breaker"],
+    "severity": "P1",
+    "steps": [
+      "Identify which upstream service is timing out from gateway error logs",
+      "Check circuit breaker status — tripped breakers appear in gateway metrics",
+      "If single upstream degraded: enable graceful degradation (return cached or empty response)",
+      "Increase gateway timeout threshold if upstream is just slow: GATEWAY_TIMEOUT=30s",
+      "Restart api-gateway pods if memory leak suspected (check memory trend)",
+      "Scale api-gateway horizontally if CPU > 80%"
+    ],
+    "contacts": ["#eng-alerts", "@oncall-platform"],
+    "escalation": "Page platform lead if multiple upstreams degraded simultaneously"
+  }
+]

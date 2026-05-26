@@ -116,13 +116,13 @@ export function ChatApp() {
         <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-[#FF5C28]">
-              Hackathon Starter
+              On-Call Response
             </p>
             <h1 className="text-xl font-semibold tracking-tight text-white">
-              Chat + Agents on Subconscious
+              On-Call Agent
             </h1>
             <p className="mt-1 text-sm text-zinc-400">
-              Wayfair · Subconscious · Baseten · Cloudflare
+              Triage · Remediate · Notify
             </p>
           </div>
 
@@ -136,7 +136,7 @@ export function ChatApp() {
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              Chat
+              Triage
             </button>
             <button
               type="button"
@@ -157,20 +157,11 @@ export function ChatApp() {
         <div className="mb-4 rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-400">
           {mode === "chat" ? (
             <p>
-              <span className="font-medium text-[#FF5C28]">Chat mode</span> — fast
-              replies with basic tools. Attach an image for multimodal reasoning
-              (use data URLs; see{" "}
-              <code className="rounded bg-zinc-900 px-1 text-zinc-200">
-                lib/subconscious.ts
-              </code>
-              ).
+              <span className="font-medium text-[#FF5C28]">Triage mode</span> — read-only investigation. Checks active alerts, queries logs, and finds runbooks. No remediation actions taken.
             </p>
           ) : (
             <p>
-              <span className="font-medium text-[#FF5C28]">Agent mode</span> —
-              long-running multi-step agent with web search, background tasks, and
-              MCP tool stubs. Kick off research and let it run up to 30 tool
-              steps.
+              <span className="font-medium text-[#FF5C28]">Agent mode</span> — full autonomous response. Investigates, executes remediation (restart / rollback / scale), and posts Slack updates. Runs up to 30 steps.
             </p>
           )}
         </div>
@@ -179,15 +170,14 @@ export function ChatApp() {
           {messages.length === 0 && (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center text-zinc-500">
               <p className="text-lg font-medium text-zinc-200">
-                Try something to get started
+                On-call agent ready
               </p>
               <ul className="mt-4 max-w-md space-y-2 text-sm">
-                <li>“What&apos;s the weather in Boston?”</li>
-                <li>“Calculate (17 * 23) + 100”</li>
-                <li>Attach a screenshot and ask what you see</li>
+                <li>&quot;What alerts are firing right now?&quot;</li>
+                <li>&quot;Check logs for checkout-service&quot;</li>
+                <li>&quot;Find the runbook for auth latency&quot;</li>
                 <li>
-                  Switch to Agent: “Research hackathon project ideas for retail
-                  AI”
+                  Switch to Agent: &quot;Checkout is throwing 500s &mdash; investigate and remediate&quot;
                 </li>
               </ul>
             </div>
@@ -229,7 +219,7 @@ export function ChatApp() {
           {isBusy && (
             <div className="flex items-center gap-2 text-sm text-zinc-400">
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#FF5C28]" />
-              {mode === "agent" ? "Agent running…" : "Thinking…"}
+              {mode === "agent" ? "Agent investigating…" : "Checking…"}
             </div>
           )}
         </div>
@@ -284,8 +274,8 @@ export function ChatApp() {
               onChange={(event) => setInput(event.target.value)}
               placeholder={
                 mode === "agent"
-                  ? "Kick off a long-running agent task…"
-                  : "Send a message…"
+                  ? "Describe the incident — agent will investigate and remediate…"
+                  : "Ask about alerts, logs, or runbooks…"
               }
               className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#FF5C28] focus:ring-2 focus:ring-[#FF5C28]/30"
               disabled={isBusy}
