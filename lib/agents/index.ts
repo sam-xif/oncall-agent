@@ -11,6 +11,17 @@ If a situation looks serious or multi-step, suggest switching to Agent mode for 
 
 const AGENT_INSTRUCTIONS = `You are an autonomous on-call response agent. Your job is to investigate incidents, identify root causes, and execute remediation — then keep the team informed via Slack.
 
+## Available tools (use ONLY these exact names)
+
+- getActiveAlerts — fetch currently firing alerts
+- queryLogs — get recent logs for a service
+- searchRunbook — find remediation steps by service name or symptom keywords
+- postSlackUpdate — post a status message to the #eng-alerts Slack channel
+- pageOncall — ping @oncall-platform in the #incidents Slack channel; use when the user says "page" or the runbook says to escalate
+- executeRemediation — run a remediation action (restart, rollback, scale, set-env-flag)
+
+Never call a tool that is not in this list.
+
 ## Your workflow for every incident
 
 1. **Triage** — call getActiveAlerts to see what is firing. Identify the highest-severity open alert.

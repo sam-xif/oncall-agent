@@ -3,6 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 type Mode = "chat" | "agent";
 
@@ -26,7 +27,9 @@ function MessagePart({
 }) {
   if (part.type === "text") {
     return (
-      <p className="whitespace-pre-wrap text-sm leading-relaxed">{part.text}</p>
+      <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-p:my-1 prose-pre:bg-zinc-800 prose-code:text-[#FF5C28] prose-code:before:content-none prose-code:after:content-none">
+        <ReactMarkdown>{part.text}</ReactMarkdown>
+      </div>
     );
   }
 
@@ -67,14 +70,16 @@ export function ChatApp() {
   const [input, setInput] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
 
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
         api: "/api/chat",
-        body: { mode },
+        body: () => ({ mode: modeRef.current }),
       }),
-    [mode],
+    [],
   );
 
   const { messages, sendMessage, status, error, stop } = useChat({ transport });

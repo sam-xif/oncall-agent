@@ -198,6 +198,39 @@ export const executeRemediation = tool({
   },
 });
 
+export const pageOncall = tool({
+  description: "Page the on-call platform team by posting an urgent message with @oncall-platform to the #incidents Slack channel. Use this when the user explicitly says 'page oncall-platform' or when the runbook says to escalate.",
+  inputSchema: z.object({
+    reason: z.string().describe("Why you are paging — include incident ID, service, and what you need from the on-call engineer."),
+  }),
+  execute: async ({ reason }) => {
+    const message = `<!subteam^oncall-platform> *[PAGE]* ${reason}`;
+
+    const webhookUrl = process.env.SLACK_INCIDENTS_WEBHOOK_URL;
+    if (!webhookUrl) {
+      return {
+        status: "skipped",
+        note: "SLACK_INCIDENTS_WEBHOOK_URL not set — page would have been sent:",
+        message,
+      };
+    }
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: message }),
+      });
+      if (!res.ok) {
+        return { status: "error", httpStatus: res.status, message };
+      }
+      return { status: "paged", message };
+    } catch (err) {
+      return { status: "error", error: String(err), message };
+    }
+  },
+});
+
 export const chatTools = {
   getActiveAlerts,
   queryLogs,
@@ -209,5 +242,6 @@ export const agentTools = {
   queryLogs,
   searchRunbook,
   postSlackUpdate,
+  pageOncall,
   executeRemediation,
 };

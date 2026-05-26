@@ -11,10 +11,12 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.65",
     "@ai-sdk/react": "^3.0.193",
+    "@tailwindcss/typography": "^0.5.19",
     "ai": "^6.0.191",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
