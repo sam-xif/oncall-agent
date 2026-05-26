@@ -1,5 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
+import fs from "fs";
+import path from "path";
 import runbooks from "@/lib/runbooks.json";
 import staff from "@/lib/staff.json";
 
@@ -303,6 +305,60 @@ export const pingManager = tool({
   },
 });
 
+export const readSourceCode = tool({
+  description: "Read a source code file to identify bugs or misconfigurations contributing to an incident. Files are in lib/sample-code/. Use when log analysis points to an application-level root cause (e.g. connection leaks, missing error handling, resource exhaustion).",
+  inputSchema: z.object({
+    filename: z.string().describe("Filename to read from lib/sample-code/, e.g. 'checkout-db.ts'"),
+  }),
+  execute: async ({ filename }) => {
+    const safeName = path.basename(filename);
+    const filePath = path.join(process.cwd(), "lib", "sample-code", safeName);
+    try {
+      const contents = fs.readFileSync(filePath, "utf-8");
+      return { filename: safeName, contents };
+    } catch {
+      const available = fs.readdirSync(path.join(process.cwd(), "lib", "sample-code")).join(", ");
+      return { error: `File not found: ${safeName}`, available };
+    }
+  },
+});
+
+let jiraTicketCounter = 2841;
+
+export const fileJiraTicket = tool({
+  description: "File a Jira remediation ticket for a code-level fix that requires an engineering follow-up. Use when the root cause is a bug in source code rather than an infrastructure issue. Posts a summary to Slack after filing.",
+  inputSchema: z.object({
+    title: z.string().describe("Short ticket title"),
+    description: z.string().describe("Full description: root cause, affected code, steps to fix"),
+    priority: z.enum(["Critical", "High", "Medium", "Low"]).describe("Ticket priority"),
+    affectedFile: z.string().optional().describe("Source file where the bug was found"),
+    suggestedFix: z.string().describe("Concrete description of what the engineer should change"),
+  }),
+  execute: async ({ title, description, priority, affectedFile, suggestedFix }) => {
+    const ticketId = `ENG-${++jiraTicketCounter}`;
+    const ticket = { id: ticketId, title, description, priority, affectedFile, suggestedFix, status: "Open", createdAt: new Date().toISOString() };
+
+    const slackMessage = [
+      `📋 *Jira ticket filed: <https://jira.example.com/browse/${ticketId}|${ticketId}>*`,
+      `*${title}*`,
+      `Priority: ${priority}${affectedFile ? ` | File: \`${affectedFile}\`` : ""}`,
+      `*Root cause:* ${description}`,
+      `*Suggested fix:* ${suggestedFix}`,
+    ].join("\n");
+
+    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+    if (webhookUrl) {
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: slackMessage }),
+      }).catch(() => {});
+    }
+
+    return { ticket, slackPosted: !!webhookUrl, slackMessage };
+  },
+});
+
 export const chatTools = {
   getActiveAlerts,
   queryLogs,
@@ -318,4 +374,6 @@ export const agentTools = {
   executeRemediation,
   getStaffContext,
   pingManager,
+  readSourceCode,
+  fileJiraTicket,
 };

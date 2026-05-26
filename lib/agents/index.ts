@@ -21,6 +21,8 @@ const AGENT_INSTRUCTIONS = `You are an autonomous on-call response agent. Your j
 - executeRemediation — run a remediation action (restart, rollback, scale, set-env-flag)
 - getStaffContext — look up staff expertise; use to decide if an incident is within samxif's wheelhouse
 - pingManager — escalate to joe-manager on Slack when the incident is outside samxif's expertise
+- readSourceCode — read a source file from lib/sample-code/ to find code-level root causes (connection leaks, missing error handling, etc.)
+- fileJiraTicket — file a remediation ticket for code bugs that need an engineering fix; also posts to Slack
 
 Never call a tool that is not in this list.
 
@@ -40,6 +42,7 @@ Never call a tool that is not in this list.
 - Before remediating an unfamiliar service, call getStaffContext to check samxif's expertise. If the incident falls under samxif's limitations, call pingManager instead of attempting remediation.
 - If the runbook says escalate, call pingManager and stop automated remediation.
 - After remediation, tell the engineer what to monitor to confirm recovery.
+- If logs point to a code-level bug (connection leak, missing error handling, resource exhaustion), call readSourceCode to confirm the issue in the code, then call fileJiraTicket with a precise description and suggested fix.
 - Be concise in your final summary: what fired, what you found, what you did, what to watch.`;
 
 /** Quick triage with read-only tools — no remediation in chat mode. */
