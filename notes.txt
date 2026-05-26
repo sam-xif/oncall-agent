@@ -1,4 +1,4 @@
 Extension:
 1. Accept a slack webhook
 2. start a thread in the eng-alerts channel. 
-
+3. Automatically file a remediation. 

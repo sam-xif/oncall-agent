@@ -34,6 +34,23 @@
     "escalation": "Page security team if token forgery or breach suspected"
   },
   {
+    "id": "auth-breach",
+    "service": "auth-service",
+    "title": "Auth Security Incident — Possible Credential Compromise or Token Forgery",
+    "keywords": ["auth", "jwt", "signature", "forged", "breach", "compromise", "credential", "key", "secret", "anomalous", "impossible", "sessions"],
+    "severity": "P1",
+    "steps": [
+      "STOP — do not attempt to remediate this incident yourself",
+      "This is a security incident outside standard on-call scope",
+      "Do not restart, rollback, or rotate keys without security team guidance — incorrect key rotation can lock out all users",
+      "ESCALATE IMMEDIATELY to the engineering manager (joe-manager) and security team",
+      "Preserve all logs — do not flush Redis or clear any caches before security review",
+      "Post incident notice to #incidents with: what was observed, when it started, affected user count estimate"
+    ],
+    "contacts": ["#eng-alerts", "@oncall-security", "joe-manager"],
+    "escalation": "IMMEDIATE escalation required — page joe-manager and security team. Do not self-remediate."
+  },
+  {
     "id": "db-replication-lag",
     "service": "postgres-primary",
     "title": "Database Replication Lag",

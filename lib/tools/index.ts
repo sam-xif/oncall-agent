@@ -24,6 +24,17 @@ const MOCK_ALERTS = [
     affectedRegions: ["us-east-1", "eu-west-1"],
     status: "acknowledged",
   },
+  {
+    id: "INC-4822",
+    service: "auth-service",
+    severity: "P1",
+    title: "Anomalous JWT signature failures — possible credential compromise",
+    firedAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    failureRate: "34.1%",
+    affectedRegions: ["us-east-1", "eu-west-1", "ap-southeast-1"],
+    status: "triggered",
+    tags: ["security", "possible-breach"],
+  },
 ];
 
 const MOCK_LOGS: Record<string, { timestamp: string; level: string; message: string }[]> = {
@@ -38,6 +49,13 @@ const MOCK_LOGS: Record<string, { timestamp: string; level: string; message: str
     { timestamp: new Date(Date.now() - 70000).toISOString(), level: "WARN",  message: "Redis cache miss rate at 94% — possible cold cache" },
     { timestamp: new Date(Date.now() - 65000).toISOString(), level: "ERROR", message: "Token validation latency 2340ms (threshold: 500ms)" },
     { timestamp: new Date(Date.now() - 60000).toISOString(), level: "WARN",  message: "Memory usage at 81% — approaching threshold" },
+    { timestamp: new Date(Date.now() - 110000).toISOString(), level: "ERROR", message: "JWT signature validation failed: invalid signature for user uid=8821 — token may be forged" },
+    { timestamp: new Date(Date.now() - 105000).toISOString(), level: "ERROR", message: "JWT signature validation failed: invalid signature for user uid=3347 — token may be forged" },
+    { timestamp: new Date(Date.now() - 100000).toISOString(), level: "ERROR", message: "JWT signature validation failed: invalid signature for user uid=9104 — token may be forged" },
+    { timestamp: new Date(Date.now() - 95000).toISOString(),  level: "WARN",  message: "Spike in auth failures: 847 invalid tokens in last 60s (baseline: ~12/min)" },
+    { timestamp: new Date(Date.now() - 90000).toISOString(),  level: "ERROR", message: "Multiple accounts showing simultaneous sessions from geographically impossible IPs: uid=8821 (New York + Singapore, 3s apart)" },
+    { timestamp: new Date(Date.now() - 85000).toISOString(),  level: "ERROR", message: "Signing key rotation check: HMAC secret last rotated 847 days ago — potential key exposure risk" },
+    { timestamp: new Date(Date.now() - 80000).toISOString(),  level: "ERROR", message: "CRITICAL: 34.1% of auth requests using tokens with invalid signatures — possible secret key compromise" },
   ],
   "api-gateway": [
     { timestamp: new Date(Date.now() - 40000).toISOString(), level: "ERROR", message: "Upstream checkout-service timed out after 10s" },
