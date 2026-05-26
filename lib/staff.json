@@ -1,0 +1,41 @@
+{
+  "employees": [
+    {
+      "slackHandle": "samxif",
+      "name": "Samuel Xifaras",
+      "role": "Software Engineer — Backend Platform",
+      "oncallTier": "primary",
+      "expertise": [
+        "api-gateway",
+        "checkout-service",
+        "request routing",
+        "service restarts",
+        "pod scaling",
+        "feature flags",
+        "deploy rollbacks"
+      ],
+      "limitations": [
+        "auth-service — not owner, limited context on token/session internals",
+        "database internals — can run basic queries but should not make schema or replication changes",
+        "security incidents — any suspected breach or token forgery must go to security team",
+        "cross-team escalations — issues spanning more than 2 services need manager sign-off"
+      ],
+      "notes": "Comfortable owning checkout and API gateway incidents end-to-end. For auth or DB issues, can stabilize but should loop in owners or manager for root cause decisions."
+    },
+    {
+      "slackHandle": "joe-manager",
+      "name": "Joe Manager",
+      "role": "Engineering Manager — Platform & Reliability",
+      "oncallTier": "escalation",
+      "expertise": [
+        "cross-team coordination",
+        "incident command for P0/P1 multi-service outages",
+        "business impact assessment",
+        "customer communication decisions",
+        "resource and staffing decisions during incidents"
+      ],
+      "limitations": [],
+      "notes": "Escalation point for anything outside the primary on-call engineer's ownership area, or when an incident has broad business impact. Ping for: auth incidents, DB failures, security events, or any P1 unresolved after 15 minutes."
+    }
+  ]
+}

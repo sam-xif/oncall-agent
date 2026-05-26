@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import runbooks from "@/lib/runbooks.json";
+import staff from "@/lib/staff.json";
 
 const MOCK_ALERTS = [
   {
@@ -150,8 +151,13 @@ export const executeRemediation = tool({
       .describe("Action parameters. For scale: { replicas: '6' }. For rollback: { version: 'v2.3.1' }. For set-env-flag: { key: 'AUTH_FALLBACK', value: 'true' }."),
   }),
   execute: async ({ service, action, params = {} }) => {
-    // Simulate execution time
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    const delays: Record<typeof action, number> = {
+      restart: 4000,
+      rollback: 8000,
+      scale: 3000,
+      "set-env-flag": 1500,
+    };
+    await new Promise((resolve) => setTimeout(resolve, delays[action]));
 
     const timestamp = new Date().toISOString();
 
@@ -231,6 +237,54 @@ export const pageOncall = tool({
   },
 });
 
+export const getStaffContext = tool({
+  description: "Look up staff expertise and responsibilities. Use this to determine whether the current incident is within the on-call engineer's (samxif) wheelhouse, or whether it should be escalated to the manager (joe-manager).",
+  inputSchema: z.object({
+    handle: z.string().optional().describe("Slack handle to look up, e.g. 'samxif'. Omit to get all staff."),
+  }),
+  execute: async ({ handle }) => {
+    if (!handle) return { staff: staff.employees };
+    const employee = staff.employees.find((e) => e.slackHandle === handle);
+    if (!employee) return { error: `No staff record found for @${handle}` };
+    return { employee };
+  },
+});
+
+export const pingManager = tool({
+  description: "Ping joe-manager on Slack when an incident is outside samxif's expertise or requires management escalation. Posts to the #incidents channel.",
+  inputSchema: z.object({
+    reason: z.string().describe("Why you are escalating — include the incident ID, service, what was tried, and why manager input is needed."),
+  }),
+  execute: async ({ reason }) => {
+    const managerId = process.env.SLACK_MANAGER_USER_ID;
+    const mention = managerId ? `<@${managerId}>` : "@joe-manager";
+    const message = `${mention} *[ESCALATION]* ${reason}`;
+
+    const webhookUrl = process.env.SLACK_INCIDENTS_WEBHOOK_URL;
+    if (!webhookUrl) {
+      return {
+        status: "skipped",
+        note: "SLACK_INCIDENTS_WEBHOOK_URL not set — escalation would have been sent:",
+        message,
+      };
+    }
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: message }),
+      });
+      if (!res.ok) {
+        return { status: "error", httpStatus: res.status, message };
+      }
+      return { status: "sent", message };
+    } catch (err) {
+      return { status: "error", error: String(err), message };
+    }
+  },
+});
+
 export const chatTools = {
   getActiveAlerts,
   queryLogs,
@@ -244,4 +298,6 @@ export const agentTools = {
   postSlackUpdate,
   pageOncall,
   executeRemediation,
+  getStaffContext,
+  pingManager,
 };

@@ -3,6 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 
 type Mode = "chat" | "agent";
@@ -131,6 +132,13 @@ export function ChatApp() {
             </p>
           </div>
 
+          <div className="flex items-center gap-3">
+          <Link
+            href="/docs"
+            className="rounded-lg border border-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:border-[#FF5C28] hover:text-[#FF5C28]"
+          >
+            Team Docs
+          </Link>
           <div className="flex rounded-full border border-zinc-800 bg-zinc-950 p-1">
             <button
               type="button"
@@ -154,6 +162,7 @@ export function ChatApp() {
             >
               Agent
             </button>
+          </div>
           </div>
         </div>
       </header>
